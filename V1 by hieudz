@@ -1,0 +1,355 @@
+-- =========================================================================
+-- HIEUDZ MENU OFFICIAL - TÁI BẢN V4.0 (FULL CHỨC NĂNG - MENU RỘNG RÃI)
+-- CHẠY MƯỢT MÀ, KHÔNG LAG TRÊN THIẾT BỊ DELTA MOBILE (2026)
+-- =========================================================================
+
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
+
+-- Dọn dẹp bản cũ tránh trùng lặp trùng khung
+if game:GetService("CoreGui"):FindFirstChild("HieuDzMenuV4") then game:GetService("CoreGui").HieuDzMenuV4:Destroy() end
+
+local ScreenGui = Instance.new("ScreenGui", game:GetService("CoreGui"))
+ScreenGui.Name = "HieuDzMenuV4"
+ScreenGui.ResetOnSpawn = false
+
+-- Biến cấu hình trạng thái chức năng
+local Options = {
+    WalkSpeed = 16,
+    JumpPower = 50,
+    Fly = false,
+    Float = false,
+    NoClip = false,
+    ESP = false
+}
+
+-- =========================================================================
+-- 1. THIẾT KẾ MAIN FRAME (MENU ĐÃ ĐƯỢC MỞ RỘNG)
+-- =========================================================================
+local MainFrame = Instance.new("Frame", ScreenGui)
+MainFrame.Size = UDim2.new(0, 320, 0, 220) -- Mở rộng menu cực kỳ rộng rãi
+MainFrame.Position = UDim2.new(0.5, -160, 0.4, -110)
+MainFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+MainFrame.BorderSizePixel = 0
+
+local Corner = Instance.new("UICorner", MainFrame)
+Corner.CornerRadius = UDim.new(0, 8)
+
+local Stroke = Instance.new("UIStroke", MainFrame)
+Stroke.Color = Color3.fromRGB(255, 255, 255)
+Stroke.Thickness = 2
+
+-- Tiêu đề HieuDz V4.0
+local Title = Instance.new("TextLabel", MainFrame)
+Title.Size = UDim2.new(1, -40, 0, 35)
+Title.Position = UDim2.new(0, 10, 0, 0)
+Title.Text = "★ HIEUDZ MENU HUB - V4.0 ★"
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 13
+Title.TextXAlignment = Enum.TextXAlignment.Left
+Title.BackgroundTransparency = 1
+
+-- Nút [ X ] Đóng Menu
+local CloseButton = Instance.new("TextButton", MainFrame)
+CloseButton.Size = UDim2.new(0, 22, 0, 22)
+CloseButton.Position = UDim2.new(1, -30, 0, 6)
+CloseButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+CloseButton.Text = "X"
+CloseButton.TextColor3 = Color3.fromRGB(0, 0, 0)
+CloseButton.Font = Enum.Font.GothamBold
+CloseButton.TextSize = 12
+
+local CloseCorner = Instance.new("UICorner", CloseButton)
+CloseCorner.CornerRadius = UDim.new(0, 5)
+
+-- Đường kẻ chia ngang
+local Line = Instance.new("Frame", MainFrame)
+Line.Size = UDim2.new(1, 0, 0, 1)
+Line.Position = UDim2.new(0, 0, 0, 35)
+Line.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Line.BorderSizePixel = 0
+
+-- Thanh Sidebar bên trái chứa các Tab
+local Sidebar = Instance.new("Frame", MainFrame)
+Sidebar.Size = UDim2.new(0, 75, 1, -36)
+Sidebar.Position = UDim2.new(0, 0, 0, 36)
+Sidebar.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+Sidebar.BorderSizePixel = 0
+
+local SidebarLine = Instance.new("Frame", MainFrame)
+SidebarLine.Size = UDim2.new(0, 1, 1, -36)
+SidebarLine.Position = UDim2.new(0, 75, 0, 36)
+SidebarLine.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+SidebarLine.BorderSizePixel = 0
+
+local TabBtn = Instance.new("TextButton", Sidebar)
+TabBtn.Size = UDim2.new(1, -8, 0, 26)
+TabBtn.Position = UDim2.new(0, 4, 0, 8)
+TabBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+TabBtn.Text = "PLAYER"
+TabBtn.TextColor3 = Color3.fromRGB(0, 0, 0)
+TabBtn.Font = Enum.Font.GothamBold
+TabBtn.TextSize = 10
+
+local TabCorner = Instance.new("UICorner", TabBtn)
+TabCorner.CornerRadius = UDim.new(0, 4)
+
+-- Khu vực Content bên phải hiển thị tính năng
+local ContentFrame = Instance.new("ScrollingFrame", MainFrame)
+ContentFrame.Size = UDim2.new(1, -85, 1, -44)
+ContentFrame.Position = UDim2.new(0, 81, 0, 40)
+ContentFrame.BackgroundTransparency = 1
+ContentFrame.BorderSizePixel = 0
+ContentFrame.CanvasSize = UDim2.new(0, 0, 0, 260)
+ContentFrame.ScrollBarThickness = 3
+ContentFrame.ScrollBarImageColor3 = Color3.fromRGB(255, 255, 255)
+
+local ListLayout = Instance.new("UIListLayout", ContentFrame)
+ListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+ListLayout.Padding = UDim.new(0, 6)
+
+-- =========================================================================
+-- 2. HÀM TẠO CÁC NÚT BẤM CHỨC NĂNG (BUTTONS & SLIDERS INTERFACE)
+-- =========================================================================
+
+-- Tạo nút Bật / Tắt
+local function AddToggle(name, callback)
+    local Frame = Instance.new("Frame", ContentFrame)
+    Frame.Size = UDim2.new(1, -5, 0, 28)
+    Frame.BackgroundTransparency = 1
+
+    local Label = Instance.new("TextLabel", Frame)
+    Label.Size = UDim2.new(0.6, 0, 1, 0)
+    Label.Text = " " .. name
+    Label.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Label.Font = Enum.Font.GothamSemibold
+    Label.TextSize = 10
+    Label.TextXAlignment = Enum.TextXAlignment.Left
+    Label.BackgroundTransparency = 1
+
+    local Btn = Instance.new("TextButton", Frame)
+    Btn.Size = UDim2.new(0, 60, 0, 20)
+    Btn.Position = UDim2.new(1, -62, 0.5, -10)
+    Btn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    Btn.Text = "TẮT"
+    Btn.TextColor3 = Color3.fromRGB(0, 0, 0)
+    Btn.Font = Enum.Font.GothamBold
+    Btn.TextSize = 9
+    
+    local btnCorner = Instance.new("UICorner", Btn)
+    btnCorner.CornerRadius = UDim.new(0, 4)
+
+    local state = false
+    Btn.MouseButton1Click:Connect(function()
+        state = not state
+        if state then
+            Btn.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+            Btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+            Btn.Text = "BẬT ✔"
+            local s = Instance.new("UIStroke", Btn) s.Color = Color3.fromRGB(255, 255, 255) s.Thickness = 1
+        else
+            Btn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+            Btn.TextColor3 = Color3.fromRGB(0, 0, 0)
+            Btn.Text = "TẮT"
+            if Btn:FindFirstChild("UIStroke") then Btn.UIStroke:Destroy() end
+        end
+        callback(state)
+    end)
+end
+
+-- Tạo ô nhập số (Cho Tốc độ và Nhảy cao)
+local function AddTextBox(name, default, callback)
+    local Frame = Instance.new("Frame", ContentFrame)
+    Frame.Size = UDim2.new(1, -5, 0, 28)
+    Frame.BackgroundTransparency = 1
+
+    local Label = Instance.new("TextLabel", Frame)
+    Label.Size = UDim2.new(0.6, 0, 1, 0)
+    Label.Text = " " .. name
+    Label.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Label.Font = Enum.Font.GothamSemibold
+    Label.TextSize = 10
+    Label.TextXAlignment = Enum.TextXAlignment.Left
+    Label.BackgroundTransparency = 1
+
+    local Box = Instance.new("TextBox", Frame)
+    Box.Size = UDim2.new(0, 60, 0, 20)
+    Box.Position = UDim2.new(1, -62, 0.5, -10)
+    Box.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    Box.Text = tostring(default)
+    Box.TextColor3 = Color3.fromRGB(0, 0, 0)
+    Box.Font = Enum.Font.GothamBold
+    Box.TextSize = 10
+    
+    local boxCorner = Instance.new("UICorner", Box)
+    boxCorner.CornerRadius = UDim.new(0, 4)
+
+    Box.FocusLost:Connect(function()
+        local val = tonumber(Box.Text)
+        if val then callback(val) else Box.Text = tostring(default) end
+    end)
+end
+
+-- =========================================================================
+-- 3. CÀI ĐẶT LOGIC HOẠT ĐỘNG CHẠY NGẦM THỰC TẾ (REAL FUNCTIONAL LOGIC)
+-- =========================================================================
+
+-- Tốc độ & Nhảy cao
+AddTextBox("WalkSpeed (Tốc độ)", 16, function(val) Options.WalkSpeed = val end)
+AddTextBox("JumpPower (Nhảy cao)", 50, function(val) Options.JumpPower = val end)
+
+-- Kích hoạt vòng lặp gán giá trị Tốc độ và Nhảy cao liên tục
+RunService.RenderStepped:Connect(function()
+    local char = LocalPlayer.Character
+    local hum = char and char:FindFirstChildOfClass("Humanoid")
+    if hum then
+        hum.WalkSpeed = Options.WalkSpeed
+        hum.JumpPower = Options.JumpPower
+    end
+end)
+
+-- Chức năng Fly (Bay)
+AddToggle("Fly (Bay tự do)", function(state)
+    Options.Fly = state
+    local char = LocalPlayer.Character
+    local root = char and char:FindFirstChild("HumanoidRootPart")
+    if not root then return end
+    
+    if state then
+        local bv = Instance.new("BodyVelocity", root)
+        bv.Name = "HieuDz_Fly"
+        bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+        bv.Velocity = Vector3.new(0,0,0)
+        
+        task.spawn(function()
+            while Options.Fly and root and bv.Parent do
+                local camCFrame = workspace.CurrentCamera.CFrame
+                local dir = Vector3.new(0,0,0)
+                if UserInputService:IsKeyDown(Enum.KeyCode.W) then dir = dir + camCFrame.LookVector end
+                if UserInputService:IsKeyDown(Enum.KeyCode.S) then dir = dir - camCFrame.LookVector end
+                bv.Velocity = dir * (Options.WalkSpeed * 2)
+                task.wait()
+            end
+        end)
+    else
+        if root:FindFirstChild("HieuDz_Fly") then root.HieuDz_Fly:Destroy() end
+    end
+end)
+
+-- Chức năng Float (Lơ lửng)
+local floatPart = nil
+AddToggle("Float (Lơ lửng trên không)", function(state)
+    Options.Float = state
+    if state then
+        task.spawn(function()
+            while Options.Float do
+                local char = LocalPlayer.Character
+                local root = char and char:FindFirstChild("HumanoidRootPart")
+                if root then
+                    if not floatPart or not floatPart.Parent then
+                        floatPart = Instance.new("Part", char)
+                        floatPart.Size = Vector3.new(4, 0.5, 4)
+                        floatPart.Transparency = 0.7 -- Nhìn thấy tấm kính mờ màu trắng dưới chân
+                        floatPart.Anchored = true
+                    end
+                    floatPart.CFrame = root.CFrame * CFrame.new(0, -3.25, 0)
+                end
+                task.wait()
+            end
+        end)
+    else
+        if floatPart then floatPart:Destroy() floatPart = nil end
+    end
+end)
+
+-- Chức năng NoClip (Đi xuyên tường)
+RunService.Stepped:Connect(function()
+    if Options.NoClip and LocalPlayer.Character then
+        for _, part in ipairs(LocalPlayer.Character:GetDescendants()) do
+            if part:IsA("BasePart") then part.CanCollide = false end
+        end
+    end
+end)
+AddToggle("NoClip (Xuyên tường)", function(state) Options.NoClip = state end)
+
+-- Chức năng ESP Định vị người chơi (Vẽ khung vuông góc)
+local function CreateESP(player)
+    if player == LocalPlayer then return end
+    local function apply()
+        player.CharacterAdded:Connect(function(char)
+            if not Options.ESP then return end
+            task.wait(0.5)
+            if char:FindFirstChild("Highlight") then return end
+            local hl = Instance.new("Highlight", char)
+            hl.FillColor = Color3.fromRGB(255, 255, 255)
+            hl.OutlineColor = Color3.fromRGB(0, 0, 0)
+            hl.FillTransparency = 0.5
+        end)
+        if player.Character and not player.Character:FindFirstChild("Highlight") and Options.ESP then
+            local hl = Instance.new("Highlight", player.Character)
+            hl.FillColor = Color3.fromRGB(255, 255, 255)
+            hl.OutlineColor = Color3.fromRGB(0, 0, 0)
+            hl.FillTransparency = 0.5
+        end
+    end
+    apply()
+end
+
+AddToggle("ESP (Định vị Player)", function(state)
+    Options.ESP = state
+    if state then
+        for _, p in ipairs(Players:GetPlayers()) do CreateESP(p) end
+    else
+        for _, p in ipairs(Players:GetPlayers()) do
+            if p.Character and p.Character:FindFirstChild("Highlight") then p.Character.Highlight:Destroy() end
+        end
+    end
+end)
+Players.PlayerAdded:Connect(CreateESP)
+
+-- =========================================================================
+-- 4. NÚT TRÒN MINI ĐỂ MỞ LẠI MENU VÀ KHẢ NĂNG KÉO THẢ DI CHUYỂN
+-- =========================================================================
+local OpenButton = Instance.new("TextButton", ScreenGui)
+OpenButton.Size = UDim2.new(0, 42, 0, 42)
+OpenButton.Position = UDim2.new(0.02, 0, 0.4, 0)
+OpenButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+OpenButton.Text = "HieuDz"
+OpenButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+OpenButton.Font = Enum.Font.GothamBold
+OpenButton.TextSize = 9
+OpenButton.Visible = false
+
+local OpenCorner = Instance.new("UICorner", OpenButton)
+OpenCorner.CornerRadius = UDim.new(1, 0)
+
+local OpenStroke = Instance.new("UIStroke", OpenButton)
+OpenStroke.Color = Color3.fromRGB(255, 255, 255)
+OpenStroke.Thickness = 1.5
+
+CloseButton.MouseButton1Click:Connect(function() MainFrame.Visible = false; OpenButton.Visible = true end)
+OpenButton.MouseButton1Click:Connect(function() MainFrame.Visible = true; OpenButton.Visible = false end)
+
+local function makeDraggable(frame)
+    local dragging, dragStart, startPos
+    frame.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true dragStart = input.Position startPos = frame.Position
+        end
+    end)
+    UserInputService.InputChanged:Connect(function(input)
+        if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+            local delta = input.Position - dragStart
+            frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        end
+    end)
+    frame.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then dragging = false end
+    end)
+end
+makeDraggable(MainFrame)
+makeDraggable(OpenButton)
+
