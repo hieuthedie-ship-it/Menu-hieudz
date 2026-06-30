@@ -1,0 +1,287 @@
+-- =========================================================================
+-- [HIEU FT GEMINI v3.0] - 20 FUNNY & ILLUSION FUNCTIONS (CLIENT-SIDE)
+-- =========================================================================
+
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+local UserInputService = game:GetService("UserInputService")
+local Lighting = game:GetService("Lighting")
+local RunService = game:GetService("RunService")
+
+-- Làm sạch menu cũ
+if PlayerGui:FindFirstChild("GeminiCore_v3") then PlayerGui.GeminiCore_v3:Destroy() end
+
+local ScreenGui = Instance.new("ScreenGui", PlayerGui)
+ScreenGui.Name = "GeminiCore_v3"
+ScreenGui.ResetOnSpawn = false
+
+-- =========================================================================
+-- KHUNG CHÍNH & THANH CUỘN (SCROLLING FRAME)
+-- =========================================================================
+local MainFrame = Instance.new("Frame", ScreenGui)
+MainFrame.Size = UDim2.new(0, 190, 0, 300)
+MainFrame.Position = UDim2.new(0.02, 0, 0.2, 0)
+MainFrame.BackgroundColor3 = Color3.fromRGB(12, 12, 18)
+Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 8)
+local Stroke = Instance.new("UIStroke", MainFrame)
+Stroke.Color = Color3.fromRGB(0, 162, 255)
+
+-- ĐÃ THAY ĐỔI TÊN MENU TẠI ĐÂY 😎
+local Title = Instance.new("TextLabel", MainFrame)
+Title.Size = UDim2.new(1, -30, 0, 30)
+Title.Position = UDim2.new(0, 10, 0, 0)
+Title.Text = "HIEU ft GEMINI v3.0 ♊"
+Title.TextColor3 = Color3.fromRGB(0, 162, 255)
+Title.Font = Enum.Font.Code
+Title.TextSize = 11
+Title.TextXAlignment = Enum.TextXAlignment.Left
+Title.BackgroundTransparency = 1
+
+local CloseBtn = Instance.new("TextButton", MainFrame)
+CloseBtn.Size = UDim2.new(0, 20, 0, 20)
+CloseBtn.Position = UDim2.new(1, -25, 0, 5)
+CloseBtn.BackgroundColor3 = Color3.fromRGB(40, 10, 10)
+CloseBtn.Text = "×"
+CloseBtn.TextColor3 = Color3.fromRGB(255, 100, 100)
+Instance.new("UICorner", CloseBtn).CornerRadius = UDim.new(0, 4)
+CloseBtn.MouseButton1Click:Connect(function() ScreenGui:Destroy() end)
+
+-- Khung cuộn chứa 20 nút
+local Scroll = Instance.new("ScrollingFrame", MainFrame)
+Scroll.Size = UDim2.new(1, -10, 1, -40)
+Scroll.Position = UDim2.new(0, 5, 0, 35)
+Scroll.BackgroundTransparency = 1
+Scroll.CanvasSize = UDim2.new(0, 0, 0, 620)
+Scroll.ScrollBarThickness = 4
+
+local Layout = Instance.new("UIListLayout", Scroll)
+Layout.Padding = UDim.new(0, 4)
+Layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+
+-- Nút nổi thu nhỏ với biểu tượng Gemini
+local NodeBtn = Instance.new("TextButton", ScreenGui)
+NodeBtn.Size = UDim2.new(0, 35, 0, 35)
+NodeBtn.Position = UDim2.new(0.02, 0, 0.12, 0)
+NodeBtn.BackgroundColor3 = Color3.fromRGB(12, 12, 18)
+NodeBtn.Text = "♊"
+NodeBtn.TextColor3 = Color3.fromRGB(0, 162, 255)
+Instance.new("UICorner", NodeBtn).CornerRadius = UDim.new(1, 0)
+Instance.new("UIStroke", NodeBtn).Color = Color3.fromRGB(0, 162, 255)
+NodeBtn.MouseButton1Click:Connect(function() MainFrame.Visible = not MainFrame.Visible end)
+
+-- Hàm tạo nút nhanh
+local function CreateButton(text, color, onClick)
+    local Btn = Instance.new("TextButton", Scroll)
+    Btn.Size = UDim2.new(1, -10, 0, 26)
+    Btn.BackgroundColor3 = color
+    Btn.Text = text
+    Btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Btn.Font = Enum.Font.SourceSansBold
+    Btn.TextSize = 11
+    Instance.new("UICorner", Btn).CornerRadius = UDim.new(0, 4)
+    Btn.MouseButton1Click:Connect(function() onClick(Btn) end)
+end
+
+-- =========================================================================
+-- ĐỊNH NGHĨA BIẾN TRẠNG THÁI TRÒ CHƠI
+-- =========================================================================
+local Moonwalk = false
+local IceFloor = false
+local AirWalk = false
+local WallClimb = false
+local DiscoMode = false
+local MatrixMode = false
+local TimeSpeed = false
+local ShakeCam = false
+
+-- =========================================================================
+-- KHỞI TẠO LẬP TRÌNH 20 TÍNH NĂNG ẢO MA (GIỮ NGUYÊN LOGIC)
+-- =========================================================================
+
+-- 1. Moonwalk (Đi lùi)
+CreateButton("1. MOONWALK: OFF", Color3.fromRGB(25, 25, 40), function(b)
+    Moonwalk = not Moonwalk b.Text = Moonwalk and "1. MOONWALK: ON" or "1. MOONWALK: OFF"
+    task.spawn(function()
+        while Moonwalk do
+            local hum = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+            if hum and hum.MoveDirection.Magnitude > 0 then
+                LocalPlayer.Character.HumanoidRootPart.CFrame = LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0,0,0.4)
+            end
+            task.wait()
+        end
+    end)
+end)
+
+-- 2. Đầu To (Big Head)
+CreateButton("2. BIG HEAD", Color3.fromRGB(40, 25, 25), function()
+    local head = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Head")
+    local mesh = head and head:FindFirstChildOfClass("SpecialMesh")
+    if mesh then mesh.Scale = mesh.Scale * 3 else if head then head.Size = head.Size * 3 end end
+end)
+
+-- 3. Người Không Xương
+CreateButton("3. RAGDOLL FUNNY", Color3.fromRGB(40, 35, 25), function()
+    local hum = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+    if hum then hum:ChangeState(Enum.HumanoidStateType.Physics) end
+end)
+
+-- 4. Sàn Băng (Ice Floor)
+CreateButton("4. ICE FLOOR: OFF", Color3.fromRGB(25, 40, 40), function(b)
+    IceFloor = not IceFloor b.Text = IceFloor and "4. ICE FLOOR: ON" or "4. ICE FLOOR: OFF"
+    task.spawn(function()
+        while IceFloor do
+            local hum = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+            if hum then hum.CustomPhysicalProperties = PhysicalProperties.new(0, 0, 0, 0, 0) end
+            task.wait(0.5)
+        end
+    end)
+end)
+
+-- 5. Nhảy Cào Cào
+CreateButton("5. JUMP DANCE", Color3.fromRGB(35, 25, 40), function()
+    task.spawn(function()
+        for i=1, 20 do
+            local hum = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+            if hum then hum.Jump = true end
+            task.wait(0.2)
+        end
+    end)
+end)
+
+-- 6. Góc nhìn Flycam
+CreateButton("6. FREECAM (FLY)", Color3.fromRGB(30, 40, 30), function()
+    local cam = workspace.CurrentCamera
+    cam.CameraType = cam.CameraType == Enum.CameraType.Scriptable and Enum.CameraType.Custom or Enum.CameraType.Scriptable
+end)
+
+-- 7. Siêu Zoom
+CreateButton("7. MAX ZOOM OUT", Color3.fromRGB(20, 30, 40), function()
+    LocalPlayer.CameraMaxZoomDistance = 10000
+    LocalPlayer.CameraMinZoomDistance = 0
+end)
+
+-- 8. Đêm Kinh Dị (Blood Moon)
+CreateButton("8. BLOOD MOON", Color3.fromRGB(60, 15, 15), function()
+    Lighting.Ambient = Color3.fromRGB(255, 0, 0)
+    Lighting.ClockTime = 0
+    local atmosphere = Lighting:FindFirstChildOfClass("Atmosphere") or Instance.new("Atmosphere", Lighting)
+    atmosphere.Color = Color3.fromRGB(255, 0, 0)
+    atmosphere.Density = 0.5
+end)
+
+-- 9. Vũ Trường Disco
+CreateButton("9. DISCO SKY: OFF", Color3.fromRGB(50, 20, 50), function(b)
+    DiscoMode = not DiscoMode b.Text = DiscoMode and "9. DISCO SKY: ON" or "9. DISCO SKY: OFF"
+    task.spawn(function()
+        while DiscoMode do
+            Lighting.Ambient = Color3.fromRGB(math.random(0,255), math.random(0,255), math.random(0,255))
+            task.wait(0.2)
+        end
+    end)
+end)
+
+-- 10. Hiệu Ứng Ma Trận
+CreateButton("10. MATRIX EFFECT", Color3.fromRGB(15, 50, 15), function()
+    local cc = Instance.new("ColorCorrectionEffect", Lighting)
+    cc.TintColor = Color3.fromRGB(100, 255, 100)
+    cc.Contrast = 0.5
+end)
+
+-- 11. Đi Bộ Trên Không
+local airPart = nil
+CreateButton("11. AIR WALK: OFF", Color3.fromRGB(20, 45, 50), function(b)
+    AirWalk = not AirWalk b.Text = AirWalk and "11. AIR WALK: ON" or "11. AIR WALK: OFF"
+    if AirWalk then
+        airPart = Instance.new("Part", workspace)
+        airPart.Size = Vector3.new(10, 1, 10)
+        airPart.Anchored = true
+        airPart.Transparency = 0.5
+        task.spawn(function()
+            while AirWalk do
+                local root = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                if root then airPart.Position = root.Position - Vector3.new(0, 3.5, 0) end
+                task.wait()
+            end
+        end)
+    else
+        if airPart then airPart:Destroy() end
+    end
+end)
+
+-- 12. Leo Tường
+CreateButton("12. WALL CLIMB: OFF", Color3.fromRGB(55, 35, 15), function(b)
+    WallClimb = not WallClimb b.Text = WallClimb and "12. WALL CLIMB: ON" or "12. WALL CLIMB: OFF"
+end)
+
+-- 13. Lướt Ván
+CreateButton("13. HOVERBOARD", Color3.fromRGB(45, 45, 45), function()
+    local anims = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Animate")
+    if anims then anims:Destroy() end
+end)
+
+-- 14. Đảo Trọng Lực
+CreateButton("14. INVERT GRAVITY", Color3.fromRGB(30, 20, 55), function()
+    workspace.Gravity = workspace.Gravity == 196.2 and -50 or 196.2
+end)
+
+-- 15. Dịch Chuyển Ngẫu Nhiên
+CreateButton("15. RANDOM TELEPORT", Color3.fromRGB(55, 55, 20), function()
+    local root = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+    if root then root.CFrame = root.CFrame * CFrame.new(math.random(-50,50), 0, math.random(-50,50)) end
+end)
+
+-- 16. Xóa Bản Đồ
+CreateButton("16. DELETE MAP (VISUAL)", Color3.fromRGB(60, 20, 20), function()
+    for _, obj in pairs(workspace:GetChildren()) do
+        if obj:IsA("Folder") or obj:IsA("Model") and obj.Name ~= LocalPlayer.Name then
+            obj:Destroy()
+        end
+    end
+end)
+
+-- 17. Thời Gian Quay Cuồng
+CreateButton("17. TIME SPEED: OFF", Color3.fromRGB(20, 50, 35), function(b)
+    TimeSpeed = not TimeSpeed b.Text = TimeSpeed and "17. TIME SPEED: ON" or "17. TIME SPEED: OFF"
+    task.spawn(function()
+        while TimeSpeed do
+            Lighting.ClockTime = Lighting.ClockTime + 0.1
+            task.wait()
+        end
+    end)
+end)
+
+-- 18. Rung Lắc Màn Hình
+CreateButton("18. SHAKE CAMERA: OFF", Color3.fromRGB(50, 40, 20), function(b)
+    ShakeCam = not ShakeCam b.Text = ShakeCam and "18. SHAKE CAM: ON" or "18. SHAKE CAM: OFF"
+    task.spawn(function()
+        while ShakeCam do
+            local cam = workspace.CurrentCamera
+            if cam then cam.CFrame = cam.CFrame * CFrame.Angles(math.rad(math.random(-1,1)), math.rad(math.random(-1,1)), 0) end
+            task.wait()
+        end
+    end)
+end)
+
+-- 19. Đèn Pha Siêu Sáng
+local light = nil
+CreateButton("19. SUPER LIGHT", Color3.fromRGB(55, 55, 55), function()
+    local root = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+    if root and not light then
+        light = Instance.new("SpotLight", root)
+        light.Range = 60
+        light.Brightness = 10
+    elseif light then
+        light:Destroy() light = nil
+    end
+end)
+
+-- 20. Click Tạo Nổ
+CreateButton("20. CLICK EXPLOSION", Color3.fromRGB(65, 30, 15), function()
+    local mouse = LocalPlayer:GetMouse()
+    mouse.Button1Down:Connect(function()
+        local exp = Instance.new("Explosion", workspace)
+        exp.Position = mouse.Hit.p
+        exp.BlastRadius = 0
+    end)
+end)
